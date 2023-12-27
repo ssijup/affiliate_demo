@@ -1,11 +1,13 @@
 from django.urls import path
 from .views import (CreateProductView,CreateProductClicks,GetAllProductDeatilsInAdminDash,
                      GetSingleProductDetailUisngId,ListAllInfluencersView, ListAllOraganiserView, ListAllOrganiserofAproduct, 
-                     ListAllinfluencerofAproduct, ProductPaymentView, SubcriptionPaymentSucessfullView)
+                     ListAllinfluencerofAproduct, ProductPaymentView, SubcriptionPaymentSucessfullView, ListAllProductsView)
 
 urlpatterns = [
     #To create a product in  admin side 
     path('create',CreateProductView.as_view(), name = 'CreateProductView'),
+    #To list all products
+    path('list/all/products',ListAllProductsView.as_view(), name = 'ListAllProductsView'),
 
     #To create ie increce prodct link clicked  count
     path('link/clicked/<product_unique_id>',CreateProductClicks.as_view(), name = 'CreateProductClicks'),
@@ -30,6 +32,8 @@ urlpatterns = [
     path('subcription/payment/intiated/<product_id>',ProductPaymentView.as_view(), name = 'ProductPaymentView'),
     #To confirm the payment that the request to the payment has been Completed sucessfully ie payment completed
     path('subcription/sucessfull/completed/<paymentId>/<payment_oredr_RequestId>/<signature_id>',SubcriptionPaymentSucessfullView.as_view(), name = 'SubcriptionPaymentSucessfullView'),
+
+
 
 
 #Done in excel ^^
