@@ -9,7 +9,7 @@ from django.db import transaction
 from userapp.serializer import UserDataSerializer,UserDetailsSerializer, RegionDataVillageSerializer
 from product.serializer import ( ProductSeriaizer,RefferalLinkSerializer, UserRequestingforUpgradingToOrganiserSerializer)
 from .models import UserData,UserDetails, UserRequestingforUpgradingToOrganiser, SupportingExcelData, RegionDataVillage
-from product.models import Product, RefferalLink
+from product.models import Product, RefferalLink, UserCommissions
 from affiliate.settings import SITE_DOMAIN_NAME
 
 import pandas as pd
@@ -286,10 +286,9 @@ class DetailsOfUserUsingId(APIView):
         except UserData.DoesNotExist:
             return Response({'message' : "Something whent wrong...Please try again later"})
         
-#Done api in excel ^^
         
 #To get all the product a particular user
-class GetUserProduct(APIView):
+class GetAllUserProduct(APIView):
     def get(self, request):
         try:
             user = request.user
@@ -301,5 +300,26 @@ class GetUserProduct(APIView):
             return Response({'message' : "Something whent wrong...Please try again later"})
 
 
- 
 
+#User Total commission using request
+class UserTotalCommissionView(APIView):
+    def get(self, request):
+        user = request.user
+        try :
+            user_data = UserData.objects.get(id = user.id)
+            commission = UserCommissions.objects.filter(user__user=user_data)
+            intial_commission =0
+            if commission:
+                for each in commission:
+                    each_commission = each.commission_amount
+                    intial_commission += each_commission
+                total_user_commission = intial_commission
+                return Response({'commission' : total_user_commission}, status=status.HTTP_200_OK)
+            else :
+                return Response({'commission': 0}, status=status.HTTP_200_OK) 
+        except UserData.DoesNotExist:
+            return Response({'message' : 'Something whent wrong...PLease try again'}, status= status.HTTP_400_BAD_REQUEST)
+
+
+
+#Done api in excel ^^

@@ -3,8 +3,8 @@ from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshVie
 
 from .views import (GetUserDetails, CustomTokenObtainPairView,UserRegisration,UserRequestingAdminforUpgradeToOrganiser,
                     GetUSerUpgradationRequests,DetailsOfUserUsingId, UserResquestApproValForUpgradation,
-                      CreateProductClicksForUser, UploadFileView, RegionDataVillageListByDistrict,
-                      RegionDataVillageListByLocalBody,GetUSerUpgradationRequestsStausInUserDash, RegionDataVillageListByVillage)
+                      CreateProductClicksForUser, UploadFileView, RegionDataVillageListByDistrict,UserTotalCommissionView,
+                      RegionDataVillageListByLocalBody,GetUSerUpgradationRequestsStausInUserDash,GetAllUserProduct, RegionDataVillageListByVillage)
 
 
 urlpatterns = [
@@ -24,6 +24,11 @@ urlpatterns = [
     path('user/registration/<product_unique_id>/<influncer_uuid>/<organiser_uuid>', UserRegisration.as_view(), name='UserRegisration'),
     #To get the user details  logged user after login
     path('single/user/dashboard/details', GetUserDetails.as_view(), name='GetUserDetails'),
+    #To get all the product a particular user .user will be Fetched using request
+    path('single/user/all/product/details', GetAllUserProduct.as_view(), name='GetAllUserProduct'),
+
+
+    
     
 #UPGRADATION REQUEST
     #user request for level upgradation ie from influncer to organiser
@@ -33,7 +38,6 @@ urlpatterns = [
     #to get the user request status of upgradation in the user dashboard
     path('user/upgrdation/status/in/user/dash', GetUSerUpgradationRequestsStausInUserDash.as_view(), name='GetUSerUpgradationRequestsStausInUserDash'),
     
-#Done in excel ^^
     #To approve or reject user request to upgradation
     path('user/upgrdation/request/approval/<upgrading_request_id>', UserResquestApproValForUpgradation.as_view(), name='UserResquestApproValForUpgradation'),
 
@@ -42,10 +46,10 @@ urlpatterns = [
     #To displaying the details of a user when clicked     
     path('user/details/<user_id>', DetailsOfUserUsingId.as_view(), name='DetailsOfUserUsingId'),
    
+   #Done in excel ^^
 
-
-
-
+#User Total commission using request
+    path('total/commission',UserTotalCommissionView.as_view(), name = 'UserTotalCommissionView'),
 
     
 ]

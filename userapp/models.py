@@ -65,26 +65,6 @@ class UserData(AbstractUser):
     #     related_name='user_data_user_permissions',  # <-- Change this line
     # )
 
-
-
-
-class UserDetails(models.Model):
-    user = models.ForeignKey(UserData, on_delete=models.CASCADE, related_name='user_details')
-    phone = models.CharField(max_length =15, null = True, blank = True)
-    house_number=models.CharField(max_length=50,null = True, blank = True)
-    land_mark = models.CharField(max_length=500,null = True, blank = True)
-    # user_refferal_link = models.URLField(default = '1')
-
-
-class UserRequestingforUpgradingToOrganiser(models.Model):
-    user = models.ForeignKey(UserData, on_delete = models.CASCADE)
-    user_refferal_link = models.ForeignKey('product.RefferalLink', on_delete = models.CASCADE, default ='0')
-    request_status = models.CharField(max_length= 50, choices=UPGRADATION_STATUS_CHOICES, default='Pending')
-    description = models.CharField(max_length =700, null = True, blank = True)
-    is_verified = models.BooleanField(default = False)#to outlist it from the admin dash as  a request
-    approved_or_reject_by= models.ForeignKey(UserData,on_delete = models.CASCADE,related_name = 'upgradation_approved_by', null = True)
-
-
 class RegionDataVillage(models.Model):
     state = models.CharField(max_length=100)
     district = models.CharField(max_length=100)
@@ -97,6 +77,27 @@ class RegionDataVillage(models.Model):
 
     class Meta:
         verbose_name_plural = "Region Data"
+
+
+
+class UserDetails(models.Model):
+    user = models.ForeignKey(UserData, on_delete=models.CASCADE, related_name='user_details')
+    phone = models.CharField(max_length =15, null = True, blank = True)
+    house_number=models.CharField(max_length=50,null = True, blank = True)
+    land_mark = models.CharField(max_length=500,null = True, blank = True)
+    region_data = models.ForeignKey(RegionDataVillage, on_delete = models.CASCADE, null= True)
+
+
+class UserRequestingforUpgradingToOrganiser(models.Model):
+    user = models.ForeignKey(UserData, on_delete = models.CASCADE)
+    user_refferal_link = models.ForeignKey('product.RefferalLink', on_delete = models.CASCADE, default ='0')
+    request_status = models.CharField(max_length= 50, choices=UPGRADATION_STATUS_CHOICES, default='Pending')
+    description = models.CharField(max_length =700, null = True, blank = True)
+    is_verified = models.BooleanField(default = False)#to outlist it from the admin dash as  a request
+    approved_or_reject_by= models.ForeignKey(UserData,on_delete = models.CASCADE,related_name = 'upgradation_approved_by', null = True)
+
+
+
 
 
 class SupportingExcelData(models.Model):

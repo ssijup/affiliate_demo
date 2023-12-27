@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-from .models import Product,RefferalLink,RegionData,Payment
+from .models import Product,RefferalLink,RegionData,UserPaymentDetailsOfProduct,PaymentRquest
 from userapp.models import UserData, UserDetails
 from userapp.serializer import UserDataSerializer, UserRequestingforUpgradingToOrganiser, UserDetailsSerializer
 

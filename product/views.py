@@ -9,7 +9,7 @@ import string
 
 
 
-from .models import Product,RefferalLink,RegionData,Payment
+from .models import Product,RefferalLink,RegionData,UserPaymentDetailsOfProduct, UserCommissions,PaymentRquest
 from .serializer import ProductSeriaizer,RefferalLinkSerializer
 from userapp.models import UserData
 from affiliate.settings import SITE_DOMAIN_NAME
@@ -151,17 +151,18 @@ class ListAllinfluencerofAproduct(APIView):
             return Response({'message' : "Something whent wrong...Please try again later"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-#Done api in url ^^
         
 
 #payment ie subcription of the product and calculating the commission is doing in this view
 class ProductPaymentView(APIView):
+
     def post(self ,request, product_id):
         try:
             user = request.user
             user_data =UserData.objects.get(id= user.id)
             product = Product.objects.get(id = product_id)
             user_infos = RefferalLink.objects.get(user = user_data, product = product)
+
             client = razorpay.Client(auth=(settings.API_KEY, settings.AUTH_TOKEN))
             razorpay_amount=int(product.subcription_fee)*100  
             keys =  settings.API_KEY
@@ -179,7 +180,16 @@ class ProductPaymentView(APIView):
             response=client.order.create(data=DATA)
 
             print(response)
-            return Response({'message' : 'Your payment request intialted sucessfully',"data" :response}, status=status.HTTP_202_ACCEPTED)
+            if response['status'] == 'created':
+                order_id = response['id']
+                amount =response['amount'] 
+                PaymentRquest.objects.create(
+                    user_link = user_infos,
+                    pay_request_order_id = order_id,
+                    product = product, 
+                    total_amount = amount/100
+                      )
+                return Response({'message' : 'Your payment request intialted sucessfully .Commission calculated',"data" :response}, status=status.HTTP_202_ACCEPTED)
         except RefferalLink.DoesNotExist:
             return Response({'message' : '1Something whent wrong...PLease try again'}, status= status.HTTP_400_BAD_REQUEST)
         except UserData.DoesNotExist:
@@ -193,6 +203,54 @@ class ProductPaymentView(APIView):
 
 
 class SubcriptionPaymentSucessfullView(APIView):
+    def calculate_commision_amount(self,influencer_percentage, organiser_percentage, product):
+        print('influencer_percentage :' , influencer_percentage)
+        print('organiser_percentage :' , organiser_percentage)
+        gst_rate = product.inclusive_GST #(the gst rate of the product)
+        product_fee = product.subcription_fee
+        product_fee_without_gst = (product_fee / (100 + gst_rate)) * 100
+        
+        if influencer_percentage and organiser_percentage:
+            influencer_comm_amt = (influencer_percentage / 100) * product_fee_without_gst
+            organiser_comm_amt = (organiser_percentage / 100) * product_fee_without_gst
+            return influencer_comm_amt,organiser_comm_amt
+
+        if not influencer_percentage :
+            influencer_comm_amt = 0
+        else :
+            influencer_comm_amt = (influencer_percentage / 100) * product_fee_without_gst
+       
+        if not organiser_percentage:
+            organiser_comm_amt = 0
+        else :
+            organiser_comm_amt = (organiser_percentage / 100) * product_fee_without_gst
+
+        return influencer_comm_amt,organiser_comm_amt
+    
+    def calculate_commission_percentage( self,influencer, organiser, product):
+        subcription_fee = product.subcription_fee
+        # inclusive_GST = product.
+        organiser_commission_percentage = product.organiser_commission_percentage
+        influencer_commission_percentage = product.influencer_commission_percentage
+        
+        if influencer and organiser:#(give the com% as it is for both)
+            influencer_percent = influencer_commission_percentage
+            organiser_percentage = organiser_commission_percentage
+            influencer_amt, organiser_amt =self.calculate_commision_amount(influencer_percent,organiser_percentage, product)
+            return influencer_amt, organiser_amt
+
+        elif influencer and not organiser:
+            influencer_percent = influencer_commission_percentage
+            organiser_percentage = None
+            influencer_amt, organiser_amt =self.calculate_commision_amount(influencer_percent,organiser_percentage, product)
+            return influencer_amt, organiser_amt
+        
+        elif organiser and not influencer:
+            influencer_percent = None
+            organiser_percentage = influencer_commission_percentage #(Means he is the directreffer in this case ie no inter mediate)
+            # amount =self.calculate_commision_amount(influencer_percent,organiser_percentage, product)
+            influencer_amt, organiser_amt =self.calculate_commision_amount(influencer_percent,organiser_percentage, product)
+            return influencer_amt, organiser_amt
     def post(self, request, paymentId,payment_oredr_RequestId,signature_id):
         client = razorpay.Client(auth=(settings.API_KEY, settings.AUTH_TOKEN))
         try:
@@ -209,6 +267,70 @@ class SubcriptionPaymentSucessfullView(APIView):
             if not verify_signature:
                 return Response({'message': 'Signature verification failed. Payment failed.'}, status=status.HTTP_400_BAD_REQUEST)
             else :
-                return Response({'message':' Payment completed'}, status=status.HTTP_200_OK)       
+                try:
+                    pay_request_obj = PaymentRquest.objects.get(pay_request_order_id = payment_oredr_RequestId )
+                    user_data = pay_request_obj.user_link.user
+                    product = pay_request_obj.product                   
+                    user_infos = RefferalLink.objects.get(user = user_data, product = product)
+                    direct_refferr = user_infos.direct_referred_link_owner
+                    indirect_reffer = user_infos.indirect_referred_link_owner
+                    # product = user_infos.product
+                    # amount = 
+                    UserPaymentDetailsOfProduct.objects.create(
+                        user_link =user_infos,
+                        product =product,
+                         payment_status = True,
+                         payment_total_amount_paid = pay_request_obj.total_amount,
+                        payment_status_of_gateway = response['status'],
+                        payment_order_id = response['order_id'],
+                        payment_id =response['id'],
+                        payment_signature = signature_id
+
+                        )
+                    if direct_refferr or indirect_reffer:
+                        print('Calculation started')
+                        influencer_comm_amt,organiser_comm_amt = self.calculate_commission_percentage(direct_refferr, indirect_reffer, product)
+                        print('influencer_percentage :' , influencer_comm_amt)
+                        print('organiser_percentage :' , organiser_comm_amt)          
+                        if direct_refferr:
+                            print('Calculation started : direct_refferraaa')
+                            user = direct_refferr
+                            direct_user_data = UserData.objects.get(id = user.id)
+                            direct_user = RefferalLink.objects.get(user = direct_user_data, product =product)
+                            user_commission = UserCommissions.objects.create(
+                                user = direct_user,
+                                commission_amount =influencer_comm_amt,
+                                paid_user = user_infos,
+                                product = product,
+                                commissioned_user_role = direct_user.link_holder_current_role,
+                                paid_user_role = user_infos.link_holder_current_role,
+                            )
+                            
+                        if indirect_reffer:
+                            print('Calculation started : indirect_refferr')
+
+                            user = indirect_reffer
+                            indirect_user_data = UserData.objects.get(id = user.id)
+                            indirect_user = RefferalLink.objects.get(user = indirect_user_data, product =product)
+                            user_commission = UserCommissions.objects.create(
+                                user = indirect_user,
+                                commission_amount =organiser_comm_amt,
+                                paid_user = user_infos,
+                                product = product,
+                                commissioned_user_role = indirect_user.link_holder_current_role,
+                                paid_user_role = user_infos.link_holder_current_role,
+                            )
+                
+                    return Response({'message':' Payment completed'}, status=status.HTTP_200_OK)       
+                except PaymentRquest.DoesNotExist:
+                    return Response({'message' : 'Your payment is under process'}, status=status.HTTP_206_PARTIAL_CONTENT)
+
         except Exception as e:
             return Response({'message': str(e) + ' Payment failed'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+#Done api in url ^^
+
+
+
+
