@@ -60,6 +60,7 @@ class RegionDataVillageListByDistrict(generics.ListAPIView):
     serializer_class = RegionDataVillageSerializer
 
     def get_queryset(self):
+        print('q555555555555555555555')
         district = self.kwargs['district']
         return RegionDataVillage.objects.filter(district=district)
 
@@ -82,8 +83,11 @@ class UserRegisration(APIView):
     # product_unique_id : will get the product_unique_id from the url of the registration link
     def post(self, request,product_unique_id, influncer_uuid, organiser_uuid):
         try:
+            influncer_uuid = None if influncer_uuid == 'None' else influncer_uuid
+            organiser_uuid = None if organiser_uuid == 'None' else organiser_uuid
+            print(influncer_uuid,organiser_uuid)
             # influncer_uuid = None
-            # organiser_uuid = None
+            # organiser_uuid = None 
             with transaction.atomic():
 
                 data = request.data
@@ -125,7 +129,7 @@ class UserRegisration(APIView):
                                 direct_ref = UserData.objects.get(uuid =influncer_uuid)
                                 indirect_ref =UserData.objects.get(uuid =organiser_uuid)
                             except UserData.DoesNotExist:
-                                return Response({'message' : 'Someting whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
+                                return Response({'message' : '111qSometing whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
                             data['direct_referred_link_owner_id'] = direct_ref.id
                             data['indirect_referred_link_owner_id'] = indirect_ref.id
                             link = f'{SITE_DOMAIN_NAME}/signup?product_id={product_unique_id}&influ_1={user_uuid}&org_2={None}'
@@ -136,14 +140,14 @@ class UserRegisration(APIView):
                                 link = f'{SITE_DOMAIN_NAME}/signup?product_id={product_unique_id}&influ_1={user_uuid}&org_2={None}'
 
                             except UserData.DoesNotExist:
-                                return Response({'message' : 'Someting whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
+                                return Response({'message' : 'aaSometing whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
                         elif organiser_uuid :
                             try:
                                 direct_ref = UserData.objects.get(uuid =organiser_uuid)
                                 data['direct_referred_link_owner_id'] = direct_ref.id
                                 link = f'{SITE_DOMAIN_NAME}/signup?product_id={product_unique_id}&influ_1={user_uuid}&org_2={organiser_uuid}'
                             except UserData.DoesNotExist:
-                                return Response({'message' : 'Someting whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
+                                return Response({'message' : 'eerSometing whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
 
                         link_serializer = RefferalLinkSerializer(data=data)
                         data['user_refferal_link'] = link
@@ -158,8 +162,8 @@ class UserRegisration(APIView):
                     # user.delete()
                     return Response({'message' : "Please check the entered details"},status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            print(e)
-            return Response({'message' : 'Someting whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
+            print('99',e)
+            return Response({'message' : '1111111Someting whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -287,7 +291,7 @@ class DetailsOfUserUsingId(APIView):
             return Response({'message' : "Something whent wrong...Please try again later"})
         
         
-#To get all the product a particular user
+#To get all the product of a particular user
 class GetAllUserProduct(APIView):
     def get(self, request):
         try:
@@ -300,7 +304,7 @@ class GetAllUserProduct(APIView):
             return Response({'message' : "Something whent wrong...Please try again later"})
 
 
-
+#Net Commission
 #User Total commission using request
 class UserTotalCommissionView(APIView):
     def get(self, request):
@@ -323,3 +327,55 @@ class UserTotalCommissionView(APIView):
 
 
 #Done api in excel ^^
+        
+#Gross sale of a particualr user(total sale amount) iesum of total price of all the product slled under tha user
+class TotalGrossSaleOfEachUser(APIView):
+    def get(self, request):
+        user = request.user
+        try:
+            user_data = UserData.objects.get(id = user.id)
+            user_related_link = UserCommissions.objects.filter(user__user = user_data)
+            initial_amount = 0
+            for each in user_related_link:
+                initial_amount += each.product.subcription_fee
+            user_gross_sale = initial_amount
+            return Response({'commission' : user_gross_sale}, status=status.HTTP_200_OK)
+
+        except UserData.DoesNotExist:
+            return Response({'message' : "Something when wrong please try again"}, status= status.HTTP_400_BAD_REQUEST)
+
+
+#Gross sale of a particualr product(total sale amount) ie sum of total price of  the product selled 
+class TotalGrossSaleofEachProduct(APIView):
+    def get(self, request, product_id):
+        user = request.user
+        try:
+            product = Product.objects.get(id = product_id)
+            products_related_obj = UserCommissions.objects.filter(product = product)
+            # initial_amount = 0
+            initial_amount = sum(each.product.subcription_fee for each in products_related_obj)
+            product_gross_sale = initial_amount
+            return Response({'commission' : product_gross_sale}, status=status.HTTP_200_OK)
+
+        except UserData.DoesNotExist:
+            return Response({'message' : "Something when wrong please try again"}, status= status.HTTP_400_BAD_REQUEST)
+
+
+
+class TotalGrossSaleInAdminSide(APIView):
+    def get(self, request):
+        user = request.user
+        try:
+            # product = Product.objects.get(id = product_id)
+            admin_products_related_obj = UserCommissions.objects.all()
+            # initial_amount = 0
+            initial_amount = sum(each.product.subcription_fee for each in admin_products_related_obj)
+            padmin_roduct_gross_sale = initial_amount
+            return Response({'commission' : padmin_roduct_gross_sale}, status=status.HTTP_200_OK)
+
+        except UserData.DoesNotExist:
+            return Response({'message' : "Something when wrong please try again"}, status= status.HTTP_400_BAD_REQUEST)
+        
+
+
+        

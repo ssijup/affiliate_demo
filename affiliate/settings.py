@@ -150,7 +150,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SITE_DOMAIN_NAME = 'http://localhost:3000/'
+SITE_DOMAIN_NAME = 'http://localhost:3000'
 
 
 # API_KEY = 'test_d392211dc662c82576c15b2b64b'

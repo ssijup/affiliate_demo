@@ -47,7 +47,7 @@ class CreateProductView(APIView):
             if product_serializer.is_valid():
                 product = product_serializer.save()
                 # link = f'{SITE_DOMAIN_NAME}/association/linkactivation/{product.unique_id}'
-                link = f'{SITE_DOMAIN_NAME}/signup?product_id={product.unique_id}&influ_1={None}&org_2={None}'
+                link = f'{SITE_DOMAIN_NAME}/user/register?product_id={product.unique_id}&influ_1={None}&org_2={None}'
                     # http://yourmlmwebsite.com/signup?ref=<referrer_id>&level1=<level1_id>&level2=<level2_id>
 
                 product.product_link = link
@@ -78,7 +78,8 @@ class CreateProductClicks(APIView):
     def patch(self, request, product_unique_id):
         try:
             product = Product.objects.get(unique_id = product_unique_id)
-            product.clicks = +1
+            product.clicks += 1
+            print('product.clicks :' , product.clicks)
             product.save()
             return Response({'message' : 'Product clicked'}, status=status.HTTP_201_CREATED)
         except Product.DoesNotExist:
@@ -131,6 +132,7 @@ class ListAllOrganiserofAproduct(APIView):
             return Response({'message' : "Something whent wrong...Please try again later"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+ 
 # To list all the influencers in the admin side(didn't consider scaling ie admin cretion for a company)
 class ListAllInfluencersView(APIView):
     def get(self,request):
@@ -321,7 +323,7 @@ class SubcriptionPaymentSucessfullView(APIView):
                                 paid_user_role = user_infos.link_holder_current_role,
                             )
                 
-                    return Response({'message':' Payment completed'}, status=status.HTTP_200_OK)       
+                    return Response({'message':' Payment completed'}, status=status.HTTP_200_OK)
                 except PaymentRquest.DoesNotExist:
                     return Response({'message' : 'Your payment is under process'}, status=status.HTTP_206_PARTIAL_CONTENT)
 
@@ -337,7 +339,10 @@ class ListAllProductsView(APIView):
         return Response(serializer.data , status = status.HTTP_200_OK)
 
 #Done api in url ^^
+    
 
+
+#Average
 
 
 
