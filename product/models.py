@@ -9,6 +9,12 @@ LINK_HOLEDR_ROLE_CHOICE = {
     ('admin', 'admin')
 }
 
+class NetmagicsAdmin(models.Model):
+    user = models.ForeignKey(UserData, on_delete = models.CASCADE)
+    image = models.ImageField(null=True, blank = True)
+    phone = models.CharField(max_length = 15, null =True, blank = True)
+
+
 class Product(models.Model):
     name = models.CharField(max_length =250)
     description = models.TextField(blank=True, null=True)
@@ -21,6 +27,8 @@ class Product(models.Model):
     organiser_commission_percentage = models.DecimalField(max_digits=25, decimal_places=2, default=0)
     full_fillment_link = models.URLField(null = True)
     clicks = models.IntegerField(default=0)
+    def __str__(self): 
+        return self.name+","+str(self.id)
 
 
 class RegionData(models.Model):
@@ -40,7 +48,8 @@ class RefferalLink(models.Model):
     user_refferal_link = models.URLField(null = True)#The refferal linkgenerated  once the user got regitered
     user_details =  models.ForeignKey(UserDetails, on_delete = models.CASCADE, related_name = 'user_details_parameters', null= True)
     # commission_amount= models.DecimalField(max_digits=25, decimal_places=2, default=0)
- 
+    def __str__(self): 
+        return self.user.name+","+str(self.user.id)
 
 class UserCommissions(models.Model):
     user = models.ForeignKey(RefferalLink, on_delete = models.CASCADE) #the user who got commission
@@ -50,12 +59,20 @@ class UserCommissions(models.Model):
     commissioned_user_role = models.CharField(max_length = 200 , null= True, blank = True)#The role of the user at time he got commission 
     paid_user_role = models.CharField(max_length = 200 , null= True, blank = True)#The role of the user at the time they suscribed the product 
     commission_credited_on = models.DateField(auto_now_add=True,)
+   
+    def __str__(self): 
+        return self.user.user.name+","+str(self.user.id)
+
+
 
 class PaymentRquest(models.Model):
     user_link = models.ForeignKey(RefferalLink, on_delete = models.CASCADE, null = True)
     pay_request_order_id = models.CharField(max_length = 200 , null= True, blank = True)
     product = models.ForeignKey(Product, on_delete = models.CASCADE, null = True)
     total_amount = models.IntegerField(default=0)
+
+    def __str__(self): 
+        return self.user_link.user.name+","+str(self.user_link.id)
 
 #After the sucessfull payment completion
 class UserPaymentDetailsOfProduct(models.Model):
@@ -68,6 +85,9 @@ class UserPaymentDetailsOfProduct(models.Model):
     payment_order_id = models.CharField(max_length=100,default= '0')
     payment_signature =models.CharField(max_length=100,default= '0')
     payment_id = models.CharField(max_length = 200 , null= True, blank = True)
+
+    def __str__(self): 
+        return self.user_link.user.name+","+str(self.user_link.id)
 
 
 

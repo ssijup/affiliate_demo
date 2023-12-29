@@ -1,8 +1,11 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.templatetags.static import static
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
-from .models import UserData, UserDetails, UserRequestingforUpgradingToOrganiser, RegionDataVillage
+from .models import UserData, UserDetails,UserBankAccountDetails, UserRequestingforUpgradingToOrganiser, RegionDataVillage
 from product.models import RefferalLink
+# from product.serializer import RefferalLinkSerializer
 
 
 
@@ -41,7 +44,4 @@ class RegionDataVillageSerializer(serializers.ModelSerializer):
     class Meta:
         model = RegionDataVillage
         fields = '__all__'
-
-
-
 

@@ -124,7 +124,7 @@ class ListAllOraganiserView(APIView):
 class ListAllOrganiserofAproduct(APIView):
     def get(self,request, product_id):
         try:
-            product = Product.objects.get(product = product_id)
+            product = Product.objects.get(id = product_id)
             organisers = RefferalLink.objects.filter(product=product,link_holder_current_role = 'organiser')
             serializer = RefferalLinkSerializer(organisers, many = True)
             return Response(serializer.data,status= status.HTTP_200_OK)
@@ -145,7 +145,7 @@ class ListAllInfluencersView(APIView):
 class ListAllinfluencerofAproduct(APIView):
     def get(self,request, product_id):
         try:
-            product = Product.objects.get(product = product_id)
+            product = Product.objects.get(id = product_id)
             influencers = RefferalLink.objects.filter(product=product,link_holder_current_role = 'influencer')
             serializer = RefferalLinkSerializer(influencers, many = True)
             return Response(serializer.data,status= status.HTTP_200_OK)
@@ -272,8 +272,10 @@ class SubcriptionPaymentSucessfullView(APIView):
                 try:
                     pay_request_obj = PaymentRquest.objects.get(pay_request_order_id = payment_oredr_RequestId )
                     user_data = pay_request_obj.user_link.user
-                    product = pay_request_obj.product                   
+                    product = pay_request_obj.product  
+                    print('uuuuuuuuuuuuuuuuu')                 
                     user_infos = RefferalLink.objects.get(user = user_data, product = product)
+                    print('iiiiiiiiiiiiiiiiiiiiiiiii',user_infos)
                     direct_refferr = user_infos.direct_referred_link_owner
                     indirect_reffer = user_infos.indirect_referred_link_owner
                     # product = user_infos.product
@@ -296,8 +298,9 @@ class SubcriptionPaymentSucessfullView(APIView):
                         print('organiser_percentage :' , organiser_comm_amt)          
                         if direct_refferr:
                             print('Calculation started : direct_refferraaa')
-                            user = direct_refferr
-                            direct_user_data = UserData.objects.get(id = user.id)
+                            # user = direct_refferr
+                            direct_user_data = UserData.objects.get(id = direct_refferr.id)
+                            print(',,,,,,,,,,,,,,,,,,,,,,,',direct_user_data,)
                             direct_user = RefferalLink.objects.get(user = direct_user_data, product =product)
                             user_commission = UserCommissions.objects.create(
                                 user = direct_user,
@@ -311,8 +314,9 @@ class SubcriptionPaymentSucessfullView(APIView):
                         if indirect_reffer:
                             print('Calculation started : indirect_refferr')
 
-                            user = indirect_reffer
-                            indirect_user_data = UserData.objects.get(id = user.id)
+                            # user = indirect_reffer
+                            indirect_user_data = UserData.objects.get(id = indirect_reffer.id)
+                            print(indirect_user_data)
                             indirect_user = RefferalLink.objects.get(user = indirect_user_data, product =product)
                             user_commission = UserCommissions.objects.create(
                                 user = indirect_user,
@@ -328,6 +332,7 @@ class SubcriptionPaymentSucessfullView(APIView):
                     return Response({'message' : 'Your payment is under process'}, status=status.HTTP_206_PARTIAL_CONTENT)
 
         except Exception as e:
+            print(e)
             return Response({'message': str(e) + ' Payment failed'}, status=status.HTTP_400_BAD_REQUEST)
         
 
@@ -337,6 +342,8 @@ class ListAllProductsView(APIView):
         products = Product.objects.all()
         serializer = ProductSeriaizer(products, many = True)
         return Response(serializer.data , status = status.HTTP_200_OK)
+
+
 
 #Done api in url ^^
     

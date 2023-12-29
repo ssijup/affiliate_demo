@@ -49,6 +49,9 @@ class UserData(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
+    def __str__(self): 
+        return self.name+","+str(self.id)
+
 
     # groups = models.ManyToManyField(
     #     Group,
@@ -85,7 +88,28 @@ class UserDetails(models.Model):
     phone = models.CharField(max_length =15, null = True, blank = True)
     house_number=models.CharField(max_length=50,null = True, blank = True)
     land_mark = models.CharField(max_length=500,null = True, blank = True)
-    region_data = models.ForeignKey(RegionDataVillage, on_delete = models.CASCADE, null= True)
+    # region_data = models.ForeignKey(RegionDataVillage, on_delete = models.CASCADE, null= True)
+    state = models.CharField(max_length =500, null = True, blank = True)
+    district =models.CharField(max_length =500, null = True, blank = True)
+    sub_district =models.CharField(max_length =500, null = True, blank = True)
+    local_body=models.CharField(max_length =500, null = True, blank = True)
+    village =models.CharField(max_length =500, null = True, blank = True)
+    profile_image = models.ImageField(null=True, blank = True)
+    
+    def __str__(self): 
+        return self.user.name+","+str(self.user.id)
+
+#To pay the commission amount 
+class UserBankAccountDetails(models.Model):
+    user = models.ForeignKey('product.RefferalLink', on_delete = models.CASCADE, null = True)
+    account_holder_name = models.CharField(max_length =500, null = True, blank = True)
+    account_number = models.CharField(max_length =500, null = True, blank = True)
+    bank_name = models.CharField(max_length =500, null = True, blank = True)
+    ifsc_code = models.CharField(max_length =500, null = True, blank = True)
+    pan_number = models.CharField(max_length = 500, blank =True)
+    branch_name = models.CharField(max_length = 500, blank =True)
+    check_or_passbook_photo = models.ImageField(null=True, blank = True)
+    pancard_photo = models.ImageField(null=True, blank = True)
 
 
 class UserRequestingforUpgradingToOrganiser(models.Model):
@@ -93,10 +117,11 @@ class UserRequestingforUpgradingToOrganiser(models.Model):
     user_refferal_link = models.ForeignKey('product.RefferalLink', on_delete = models.CASCADE, default ='0')
     request_status = models.CharField(max_length= 50, choices=UPGRADATION_STATUS_CHOICES, default='Pending')
     description = models.CharField(max_length =700, null = True, blank = True)
-    is_verified = models.BooleanField(default = False)#to outlist it from the admin dash as  a request
+    is_verified = models.BooleanField(default = False)#to outlist it from the admin dash from  a request
     approved_or_reject_by= models.ForeignKey(UserData,on_delete = models.CASCADE,related_name = 'upgradation_approved_by', null = True)
 
-
+    def __str__(self): 
+        return self.user.name+","+str(self.id)
 
 
 

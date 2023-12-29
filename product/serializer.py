@@ -1,8 +1,10 @@
 from rest_framework import serializers
+from django.templatetags.static import static
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
 from .models import Product,RefferalLink,RegionData,UserPaymentDetailsOfProduct,PaymentRquest
-from userapp.models import UserData, UserDetails
+from userapp.models import UserData, UserDetails, UserBankAccountDetails
 from userapp.serializer import UserDataSerializer, UserRequestingforUpgradingToOrganiser, UserDetailsSerializer
 
 
@@ -37,3 +39,34 @@ class UserRequestingforUpgradingToOrganiserSerializer(serializers.ModelSerialize
         fields = '__all__'
 
 
+
+class AddUserBankAccountDetailsSerializer(serializers.ModelSerializer):
+    user = RefferalLinkSerializer(read_only = True)
+    link_id = serializers.PrimaryKeyRelatedField(write_only=True, queryset=RefferalLink.objects.all(), source='user')
+    check_or_passbook_photo = serializers.ImageField(required = False)
+    pancard_photo = serializers.ImageField(required = False)
+    check_or_passbook_photo_url = serializers.SerializerMethodField()
+    pancard_photo_url = serializers.SerializerMethodField()
+    class Meta:
+        model = UserBankAccountDetails
+        fields = '__all__'
+
+    def get_check_or_passbook_photo_url(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return static('main_pro_changing/adv.jpg') 
+        if obj.profile_image and hasattr(obj.profile_image, 'url'):
+            return request.build_absolute_uri(obj.profile_image.url)
+        else:
+            default_img_url = static('main_pro_changing/adv.jpg')
+            return request.build_absolute_uri(default_img_url)
+
+    def get_pancard_photo_url(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return static('main_pro_changing/adv.jpg') 
+        if obj.profile_image and hasattr(obj.profile_image, 'url'):
+            return request.build_absolute_uri(obj.profile_image.url)
+        else:
+            default_img_url = static('main_pro_changing/adv.jpg')
+            return request.build_absolute_uri(default_img_url)
