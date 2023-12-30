@@ -110,6 +110,7 @@ class UserBankAccountDetails(models.Model):
     branch_name = models.CharField(max_length = 500, blank =True)
     check_or_passbook_photo = models.ImageField(null=True, blank = True)
     pancard_photo = models.ImageField(null=True, blank = True)
+    # current_primary_account = models.BooleanField()
 
 
 class UserRequestingforUpgradingToOrganiser(models.Model):

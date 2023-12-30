@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import (CreateProductView,CreateProductClicks,GetAllProductDeatilsInAdminDash,
+from .views import (CreateProductView,CreateProductClicks,GetAllProductDeatilsInAdminDash,GetUserProductLink,
                      GetSingleProductDetailUisngId,ListAllInfluencersView, ListAllOraganiserView, ListAllOrganiserofAproduct, 
-                     ListAllinfluencerofAproduct, ProductPaymentView, SubcriptionPaymentSucessfullView, ListAllProductsView)
+                     ProductSuscribedUers,ListAllinfluencerofAproduct,UserSIngleProductTranction,TransactionCountOfParticularProduct,TransactionCount,AllPayedUsersView, ProductPaymentView, SubcriptionPaymentSucessfullView, ListAllProductsView)
 
 urlpatterns = [
     #To create a product in  admin side 
@@ -33,10 +33,30 @@ urlpatterns = [
     #To confirm the payment that the request to the payment has been Completed sucessfully ie payment completed
     path('subcription/sucessfull/completed/<paymentId>/<payment_oredr_RequestId>/<signature_id>',SubcriptionPaymentSucessfullView.as_view(), name = 'SubcriptionPaymentSucessfullView'),
 
+    #To show user particular product link
+    path('user/product/link/<product_id>', GetUserProductLink.as_view(), name='GetUserProductLink'),
+
+    #To get all the payment details in admin side 
+    path('payed/users', AllPayedUsersView.as_view(), name='AllPayedUsersView'),
+    #To get suscribers of  each product in admin side 
+    path('specific/payed/users/<product_id>', ProductSuscribedUers.as_view(), name='ProductSuscribedUers'),
+    #Show overall transaction count in admin side 
+    path('overall/transaction/count', TransactionCount.as_view(), name='TransactionCount'),
+
+    path('overall/transaction/count/particular/product/<product_id>', TransactionCountOfParticularProduct.as_view(), name='TransactionCountOfParticularProduct'),
+
+
 
 
 
 #Done in excel ^^
+
+#Total transaction/customer/gross sale of the product of a particular user
+    path('transcation/user/<product_id>', UserSIngleProductTranction.as_view(), name='UserSIngleProductTranction'),
+
+
+
+
 
 #COMMISSION
 

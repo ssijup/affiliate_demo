@@ -102,16 +102,17 @@ class UserRegisration(APIView):
         try:
             influncer_uuid = None if influncer_uuid == 'None' else influncer_uuid
             organiser_uuid = None if organiser_uuid == 'None' else organiser_uuid
-            print(influncer_uuid,organiser_uuid)
+            print(influncer_uuid,'   ggggggggggggggggg  ',organiser_uuid,'676767767676767676767676767677')
             # influncer_uuid = None
             # organiser_uuid = None 
             if influncer_uuid :
                 if not UserData.objects.get(uuid = influncer_uuid):
-                    return Response({'message' : 'Sorry..This product is not avaliable or The link has expired.Please contact your reffer'})
+                    return Response({'message' : 'Sorry..This product is not avaliable or The link has expired.Please contact your reffer'}, status=status.HTTP_400_BAD_REQUEST)
+                # direct_obj = UserData.objects.get(uuid = influncer_uuid)
             if organiser_uuid :
                 if not UserData.objects.get(uuid = organiser_uuid):
-                    return Response({'message' : 'Sorry..This product is not avaliable or The link has expired.Please contact your reffer'})
-                
+                    return Response({'message' : 'Sorry..This product is not avaliable or The link has expired.Please contact your reffer'}, status=status.HTTP_400_BAD_REQUEST)
+                # indirect_obj = UserData.objects.get(uuid = influncer_uuid)
             with transaction.atomic():
                 data = request.data
                 name = request.data.get('name')
@@ -122,9 +123,9 @@ class UserRegisration(APIView):
                 else:
                     try:
                         product = Product.objects.get(unique_id = product_unique_id)
-                        data_u = UserData.objects.get(email = email)
-                        if RefferalLink.objects.filter(product = product,user = data_u).exists:
-                            return Response({'message' : 'You already registred with this product.Please login now get details'})
+                        # data_u = UserData.objects.get(email = email)
+                        # if RefferalLink.objects.filter(product = product,user = data_u).exists:
+                        #     return Response({'message' : 'You already registred with this product.Please login now get details'})
                     except UserData.DoesNotExist:
                         return Response({'message' : 'Sorry..This product is not avaliable or The link has expired.Please contact your reffer'})
                     except Product.DoesNotExist:
@@ -150,45 +151,84 @@ class UserRegisration(APIView):
                         data['user_details_id'] = u_params.id
                         role_hoding = 'influencer'
                         # link = f'{SITE_DOMAIN_NAME}/association/{role_hoding}/linkactivation/{product_unique_id}/{user.name}/{user_uuid}'
-                        if not influncer_uuid and not organiser_uuid :
-                            print('sssssssssssssssssss', user_uuid)
-                            link = f'{SITE_DOMAIN_NAME}/user/register?product_id={product_unique_id}&influ_1={user_uuid}&org_2={None}'
-                        elif influncer_uuid and organiser_uuid:
-                            try:
-                                direct_ref = UserData.objects.get(uuid =influncer_uuid)
-                                indirect_ref =UserData.objects.get(uuid =organiser_uuid)
-                            except UserData.DoesNotExist:
-                                return Response({'message' : '111qSometing whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
-                            data['direct_referred_link_owner_id'] = direct_ref.id
-                            data['indirect_referred_link_owner_id'] = indirect_ref.id
-                            link = f'{SITE_DOMAIN_NAME}/user/register?product_id={product_unique_id}&influ_1={user_uuid}&org_2={None}'
-                        elif influncer_uuid :
-                            try:
-                                direct_ref = UserData.objects.get(uuid =influncer_uuid)
-                                data['direct_referred_link_owner_id'] = direct_ref.id
-                                link = f'{SITE_DOMAIN_NAME}/user/register?product_id={product_unique_id}&influ_1={user_uuid}&org_2={None}'
+                        # if not influncer_uuid and not organiser_uuid :
+                        #     print('sssssssssssssssssss', user_uuid)
+                        #     link = f'{SITE_DOMAIN_NAME}/#/user/register?product_id={product_unique_id}&influ_1={user_uuid}&org_2={None}'
+                        # elif influncer_uuid and organiser_uuid:
+                        #     try:
+                        #         direct_ref = UserData.objects.get(uuid =influncer_uuid)
+                        #         indirect_ref =UserData.objects.get(uuid =organiser_uuid)
+                        #     except UserData.DoesNotExist:
+                        #         return Response({'message' : '111qSometing whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
+                        #     data['direct_referred_link_owner_id'] = direct_ref.id
+                        #     data['indirect_referred_link_owner_id'] = indirect_ref.id
+                        #     link = f'{SITE_DOMAIN_NAME}/#/user/register?product_id={product_unique_id}&influ_1={user_uuid}&org_2={None}'
+                        # elif influncer_uuid :
+                        #     try:
+                        #         direct_ref = UserData.objects.get(uuid =influncer_uuid)
+                        #         data['direct_referred_link_owner_id'] = direct_ref.id
+                        #         link = f'{SITE_DOMAIN_NAME}/#/user/register?product_id={product_unique_id}&influ_1={user_uuid}&org_2={None}'
 
-                            except UserData.DoesNotExist:
-                                return Response({'message' : 'Someting whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
-                        elif organiser_uuid :
-                            try:
-                                direct_ref = UserData.objects.get(uuid =organiser_uuid)
-                                data['direct_referred_link_owner_id'] = direct_ref.id
-                                link = f'{SITE_DOMAIN_NAME}/user/register?product_id={product_unique_id}&influ_1={user_uuid}&org_2={organiser_uuid}'
-                            except UserData.DoesNotExist:
-                                return Response({'message' : 'Someting whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
+                        #     except UserData.DoesNotExist:
+                        #         return Response({'message' : 'Someting whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
+                        # elif organiser_uuid :
+                        #     try:
+                        #         direct_ref = UserData.objects.get(uuid =organiser_uuid)
+                        #         data['direct_referred_link_owner_id'] = direct_ref.id
+                        #         link = f'{SITE_DOMAIN_NAME}/#/user/register?product_id={product_unique_id}&influ_1={user_uuid}&org_2={organiser_uuid}'
+                        #     except UserData.DoesNotExist:
+                        #         return Response({'message' : 'Someting whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
 
                         link_serializer = RefferalLinkSerializer(data=data)
-                        data['user_refferal_link'] = link
+                        # data['user_refferal_link'] = link
                         if link_serializer.is_valid():
-                            link_serializer.save()
-                            # user_link =link_serializer.save()
-                            # user_link =user_details_serializer.save()
-                            # user_link.user_refferal_link = link
-                            # user_link.save()
-                        return Response({'link_data' : link_serializer.data,'message' : "Your registration is successful.Please login Now"},status=status.HTTP_200_OK)
-                    print(user_details_serializer.errors)
-                    # user.delete()
+                             
+                            link_inserting =link_serializer.save()
+                            if not influncer_uuid and not organiser_uuid :
+                                print('sssssssssssssssssss', user_uuid)
+                                link = f'{SITE_DOMAIN_NAME}/#/user/register?li={link_inserting.uuid}&product_id={product_unique_id}&influ_1={user_uuid}&org_2={None}'
+                                print('eerer')
+                            elif influncer_uuid and organiser_uuid:
+                                try:
+                                    print('and       yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy')
+                                    direct_ref = UserData.objects.get(uuid =influncer_uuid)
+                                    indirect_ref =UserData.objects.get(uuid =organiser_uuid)
+                                except UserData.DoesNotExist:
+                                    return Response({'message' : '111qSometing whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
+                                # data['direct_referred_link_owner_id'] = direct_ref.id
+                                # data['indirect_referred_link_owner_id'] = indirect_ref.id
+                                link_inserting.direct_referred_link_owner = direct_ref
+                                link_inserting.indirect_referred_link_owner = indirect_ref
+
+                                link = f'{SITE_DOMAIN_NAME}/#/user/register?li={link_inserting.uuid}&product_id={product_unique_id}&influ_1={user_uuid}&org_2={None}'
+                            elif influncer_uuid :
+                                print('influerncer  yyyyyyyyyyyyyyy')
+                                try:
+                                    direct_ref = UserData.objects.get(uuid =influncer_uuid)
+                                    # data['direct_referred_link_owner_id'] = direct_ref.id
+                                    link_inserting.direct_referred_link_owner = direct_ref
+
+                                    link = f'{SITE_DOMAIN_NAME}/#/user/register?li={link_inserting.uuid}&product_id={product_unique_id}&influ_1={user_uuid}&org_2={None}'
+
+                                except UserData.DoesNotExist:
+                                    return Response({'message' : 'Someting whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
+                            elif organiser_uuid :
+                                print('organiser  yyyyyyyyyyyyyyy')
+                                try:
+                                    indirect_ref = UserData.objects.get(uuid =organiser_uuid)
+                                    # data['direct_referred_link_owner_id'] = direct_ref.id
+                                    link_inserting.direct_referred_link_owner = indirect_ref
+
+                                    link = f'{SITE_DOMAIN_NAME}/#/user/register?li={link_inserting.uuid}&product_id={product_unique_id}&influ_1={user_uuid}&org_2={organiser_uuid}'
+                                except UserData.DoesNotExist:
+                                    return Response({'message' : 'Someting whent wrong...Please try again'},status=status.HTTP_400_BAD_REQUEST)
+                            link_inserting.user_refferal_link = link
+                            link_inserting.save()
+
+                            return Response({'link_data' : link_serializer.data,'message' : "Your registration is successful.Please login Now"},status=status.HTTP_200_OK)
+                        print(user_details_serializer.errors)
+                        # user.delete()
+                        return Response({'message' : "Please check the entered details"},status=status.HTTP_400_BAD_REQUEST)
                     return Response({'message' : "Please check the entered details"},status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print('99',e)
@@ -300,7 +340,7 @@ class UserResquestApproValForUpgradation(APIView):
                     print('222222222222222222')
                     role_hoding = 'organiser'
                     # link = f'{SITE_DOMAIN_NAME}/association/{role_hoding}/linkactivation/{ref_link.product.unique_id}/{ref_link.user.name}/{ref_link.user.uuid}'
-                    link = f'{SITE_DOMAIN_NAME}/user/register?product_id={ref_link.product.unique_id}&influ_1={None}&org_2={ref_link.user.uuid}'
+                    link = f'{SITE_DOMAIN_NAME}/#/user/register?li={ref_link.uuid}&product_id={ref_link.product.unique_id}&influ_1={None}&org_2={ref_link.user.uuid}'
                     ref_link.user_refferal_link = link
                     # userdetails_obj.save()
                     ref_link.save()
@@ -443,9 +483,11 @@ class TotalGrossSaleInAdminSide(APIView):
 class CreateProductClicksForUser(APIView):
     def patch(self, request, product_unique_id,link_uuid):
         try:
+            print('uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu')
             link = RefferalLink.objects.get(uuid = link_uuid, product__unique_id = product_unique_id)
-            link.clicks = +1
+            link.clicks += 1
             link.save()
+            print(link.clicks, ']]]]]]]]]]]]]]]]]]]]]]]]]]]]]]')
             return Response({'message' : 'link of user clicked'}, status=status.HTTP_201_CREATED)
         except RefferalLink.DoesNotExist:
             return Response({'message' : "Something whent wrong...Please try again later"}, status= status.HTTP_400_BAD_REQUEST)
@@ -545,3 +587,25 @@ class GetUserBankAccountsViewUsingId(APIView):
             return Response(serializer.data, status = status.HTTP_200_OK)
         except UserData.DoesNotExist:
             return Response({'message' : "Something whent wrong...Please try again later"}, status= status.HTTP_400_BAD_REQUEST)
+        
+
+#Net commission at the admin side 
+class NetCommissionAtAdminSide(APIView):
+    def get(self, request):
+        
+        commission_objects = UserCommissions.objects.all()
+        intial_commission = 0
+        for each in commission_objects:
+            commission = each.commission_amount
+            intial_commission = commission+commission
+
+        net_commission = intial_commission
+        return Response({'message' : net_commission} , status=status.HTTP_200_OK)
+
+
+# #User total transaction to display in overview
+class UserTotalTranctionForallTheLink(APIView):
+    def get(self, request):
+        user = request.user
+        transaction = UserCommissions.objects.filter(user__user__id = user.id).count()
+        return Response({'message' : transaction}, status = status.HTTP_200_OK)

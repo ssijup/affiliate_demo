@@ -70,3 +70,11 @@ class AddUserBankAccountDetailsSerializer(serializers.ModelSerializer):
         else:
             default_img_url = static('main_pro_changing/adv.jpg')
             return request.build_absolute_uri(default_img_url)
+
+
+class UserPaymentDetailsOfProductSerializer(serializers.ModelSerializer):
+    user_link = RefferalLinkSerializer(read_only = True)
+    product = ProductSeriaizer(read_only = True)
+    class Meta:
+        model = UserPaymentDetailsOfProduct
+        fields = "__all__"

@@ -6,7 +6,9 @@ from .views import (GetUserDetails, CustomTokenObtainPairView,UserRegisration,Us
                       CreateProductClicksForUser, UploadFileView, RegionDataVillageListByDistrict,UserTotalCommissionView,
                       RegionDataVillageListByLocalBody,GetUSerUpgradationRequestsStausInUserDash,GetAllUserProduct, 
                      GetAdminUserDetails, UserTotalCliks,TotalGrossSaleOfEachUser,TotalGrossSaleofEachProduct,RegionDataVillageListByVillage,
-                    UserTotalCliksOfEachProduct,GetUserBankAccountsViewUsingId, GetUserBankAccountsView,AddUserBankAccountDetailsView, EidtUserBankAccount)
+                    UserTotalCliksOfEachProduct,GetUserBankAccountsViewUsingId, GetUserBankAccountsView,AddUserBankAccountDetailsView, 
+                    NetCommissionAtAdminSide,EidtUserBankAccount, UserTotalTranctionForallTheLink)
+
 
 
 urlpatterns = [
@@ -46,7 +48,7 @@ path('user/upgrdation/status/in/user/dash', GetUSerUpgradationRequestsStausInUse
 path('user/upgrdation/request/approval/<upgrading_request_id>', UserResquestApproValForUpgradation.as_view(), name='UserResquestApproValForUpgradation'),
 
 #To increase click count of a particular user  ie the influncer or oraganiser link
-path('user/link/clicked/<product_unique_i>/<link_uuid>', CreateProductClicksForUser.as_view(), name='CreateProductClicksForUser'),
+path('user/link/clicked/<product_unique_id>/<link_uuid>', CreateProductClicksForUser.as_view(), name='CreateProductClicksForUser'),
 #To displaying the details of a user when clicked     
 path('user/details/<user_id>', DetailsOfUserUsingId.as_view(), name='DetailsOfUserUsingId'),
 
@@ -78,10 +80,15 @@ path('user/get/all/bank/account>',GetUserBankAccountsViewUsingId.as_view(), name
 
 
 #To get the admin details 
-    path('admin/dash/details', GetAdminUserDetails.as_view(), name='GetAdminUserDetails'),
+  path('admin/dash/details', GetAdminUserDetails.as_view(), name='GetAdminUserDetails'),
+#Net commission at the admin side 
+  path('net/overoll/commission/in/admin', NetCommissionAtAdminSide.as_view(), name='NetCommissionAtAdminSide'),
 
 
 #Done in excel ^^
+
+# #User total transaction to display in overview
+  path('user/overall/transaction/for/all/link', UserTotalTranctionForallTheLink.as_view(), name='UserTotalTranctionForallTheLink'),
 
  
     
