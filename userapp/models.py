@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, Group, Permission
 from django.utils.translation import gettext_lazy as _
 
+# from userapp.models import UserData
+
 # from product.models import RefferalLink
 
 # Create your models here.
@@ -101,7 +103,7 @@ class UserDetails(models.Model):
 
 #To pay the commission amount 
 class UserBankAccountDetails(models.Model):
-    user = models.ForeignKey('product.RefferalLink', on_delete = models.CASCADE, null = True)
+    user = models.ForeignKey(UserData, on_delete = models.CASCADE, null = True)
     account_holder_name = models.CharField(max_length =500, null = True, blank = True)
     account_number = models.CharField(max_length =500, null = True, blank = True)
     bank_name = models.CharField(max_length =500, null = True, blank = True)
@@ -110,7 +112,7 @@ class UserBankAccountDetails(models.Model):
     branch_name = models.CharField(max_length = 500, blank =True)
     check_or_passbook_photo = models.ImageField(null=True, blank = True)
     pancard_photo = models.ImageField(null=True, blank = True)
-    # current_primary_account = models.BooleanField()
+    current_primary_account = models.BooleanField(default = False)
 
 
 class UserRequestingforUpgradingToOrganiser(models.Model):

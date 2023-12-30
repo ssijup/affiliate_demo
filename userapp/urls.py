@@ -7,7 +7,7 @@ from .views import (GetUserDetails, CustomTokenObtainPairView,UserRegisration,Us
                       RegionDataVillageListByLocalBody,GetUSerUpgradationRequestsStausInUserDash,GetAllUserProduct, 
                      GetAdminUserDetails, UserTotalCliks,TotalGrossSaleOfEachUser,TotalGrossSaleofEachProduct,RegionDataVillageListByVillage,
                     UserTotalCliksOfEachProduct,GetUserBankAccountsViewUsingId, GetUserBankAccountsView,AddUserBankAccountDetailsView, 
-                    NetCommissionAtAdminSide,EidtUserBankAccount, UserTotalTranctionForallTheLink)
+                    NetCommissionAtAdminSide,EidtUserBankAccount, UserTotalTranctionForallTheLink, ToMakeBankAccountPrimary)
 
 
 
@@ -70,13 +70,16 @@ path('user/total/clicks/each/product/<product_id>',UserTotalCliksOfEachProduct.a
 
 #ADDING BANK ACCOUNT
 #User create bank account
-path('user/add/bank/account/<link_id>',AddUserBankAccountDetailsView.as_view(), name = 'AddUserBankAccountDetailsView'),
+path('user/add/bank/account',AddUserBankAccountDetailsView.as_view(), name = 'AddUserBankAccountDetailsView'),
 #Edit bank user bank account
 path('user/edit/bank/account/<accouunt_id>',EidtUserBankAccount.as_view(), name = 'EidtUserBankAccount'),
 #All the accounts In the user dash
-path('user/get/all/bank/account>',GetUserBankAccountsView.as_view(), name = 'GetUserBankAccountsView'),
+path('user/get/all/bank/account',GetUserBankAccountsView.as_view(), name = 'GetUserBankAccountsView'),
 #The bank acc of a particular user  to the admin  
 path('user/get/all/bank/account>',GetUserBankAccountsViewUsingId.as_view(), name = 'GetUserBankAccountsViewUsingId'),
+#To make the user acoount a primary account
+path('user/set/bank/account/primary/<bank_account_id>',ToMakeBankAccountPrimary.as_view(), name = 'ToMakeBankAccountPrimary'),
+
 
 
 #To get the admin details 

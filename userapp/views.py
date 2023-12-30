@@ -529,21 +529,44 @@ class UserTotalCliksOfEachProduct(APIView):
         
 #USER CREATE BANK ACCOUNT
 class AddUserBankAccountDetailsView(APIView):
-    def post(self, request, link_id):
+    def post(self, request):
         try:
+            user = request.user
             data = request.data
-            link_data = RefferalLink.objects.get(id = link_id)
-            data['link_id'] = link_data.id
+            user_data = UserData.objects.get(id = user.id)
+            data['link_id'] = user_data.id
             serializer = AddUserBankAccountDetailsSerializer(data=data ,context ={'request' : request} )
             if serializer.is_valid():
-                serializer.save()
+                user_banks = UserBankAccountDetails.objects.filter(user =user_data, current_primary_account = True ).update(current_primary_account = False)
+                bank_details =serializer.save()
+                bank_details.current_primary_account =  True
+                bank_details.save()
                 return Response({'messsage' :'Your Acctount details added sucessfully'}, status = status.HTTP_201_CREATED)
-            return Response
+            print(serializer.errors)
+            return Response({'message' : "eeSomething whent wrong...Please try again later"}, status= status.HTTP_400_BAD_REQUEST)
         except RefferalLink.DoesNotExist:
-            return Response({'message' : "Something whent wrong...Please try again later"}, status= status.HTTP_400_BAD_REQUEST)
+            return Response({'message' : "1Something whent wrong...Please try again later"}, status= status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(e)
-            return Response({'message' : "Something whent wrong...Please try again later"}, status= status.HTTP_400_BAD_REQUEST)
+            return Response({'message' : "2Something whent wrong...Please try again later"}, status= status.HTTP_400_BAD_REQUEST)
+
+
+
+#To make the user acoount a primary account
+class ToMakeBankAccountPrimary(APIView):
+    def patch(self, request, bank_account_id):
+        user = request.user
+        try:
+            user_data = UserData.objects.get(id = user.id)
+            bank_account = UserBankAccountDetails.objects.get(id = bank_account_id)
+            UserBankAccountDetails.objects.filter(user = user_data, current_primary_account = True).update(current_primary_account = False)
+            bank_account.current_primary_account =  True
+            bank_account.save()
+            return Response({'message' : 'Account set as your primary account'})
+        except UserData.DoesNotExist:
+            return Response({'message' : "1Something whent wrong...Please try again later"}, status= status.HTTP_400_BAD_REQUEST)
+        except UserBankAccountDetails.DoesNotExist:
+            return Response({'message' : "1Something whent wrong...Please try again later"}, status= status.HTTP_400_BAD_REQUEST)
 
 
 #Edit bank user bank account 
@@ -568,8 +591,9 @@ class GetUserBankAccountsView(APIView):
     def get(self, request):
         user =request.user
         try :
+            print('iiiiiiiiiii')
             user_data = UserData.objects.get(id = user.id)
-            accounts = UserBankAccountDetails.objects.filter(user__user = user_data)
+            accounts = UserBankAccountDetails.objects.filter(user= user_data)
             serializer = AddUserBankAccountDetailsSerializer(accounts, many = True, context = {'request' : request})
             return Response(serializer.data, status = status.HTTP_200_OK)
         except UserData.DoesNotExist:
@@ -588,6 +612,9 @@ class GetUserBankAccountsViewUsingId(APIView):
         except UserData.DoesNotExist:
             return Response({'message' : "Something whent wrong...Please try again later"}, status= status.HTTP_400_BAD_REQUEST)
         
+
+
+
 
 #Net commission at the admin side 
 class NetCommissionAtAdminSide(APIView):

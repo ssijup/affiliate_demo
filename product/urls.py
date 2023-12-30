@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (CreateProductView,CreateProductClicks,GetAllProductDeatilsInAdminDash,GetUserProductLink,
                      GetSingleProductDetailUisngId,ListAllInfluencersView, ListAllOraganiserView, ListAllOrganiserofAproduct, 
-                     ProductSuscribedUers,ListAllinfluencerofAproduct,UserSIngleProductTranction,TransactionCountOfParticularProduct,TransactionCount,AllPayedUsersView, ProductPaymentView, SubcriptionPaymentSucessfullView, ListAllProductsView)
+                     ProductSuscribedUers,ListAllinfluencerofAproduct,UserSIngleProductTranction,TransactionCountOfParticularProduct,
+                     GetParticularProductAnalyticsInadmin,TransactionCount,AllPayedUsersView, ProductPaymentView, SubcriptionPaymentSucessfullView, ListAllProductsView)
 
 urlpatterns = [
     #To create a product in  admin side 
@@ -52,8 +53,9 @@ urlpatterns = [
 #Done in excel ^^
 
 #Total transaction/customer/gross sale of the product of a particular user
-    path('transcation/user/<product_id>', UserSIngleProductTranction.as_view(), name='UserSIngleProductTranction'),
-
+    path('user/overall/per/product/analytics/<product_id>', UserSIngleProductTranction.as_view(), name='UserSIngleProductTranction'),
+#To get all the product Analytics in admin dashboard
+    path('single/overall/product/analytics/admin/<product_id>', GetParticularProductAnalyticsInadmin.as_view(), name='GetParticularProductAnalyticsInadmin'),
 
 
 

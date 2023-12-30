@@ -42,7 +42,7 @@ class UserRequestingforUpgradingToOrganiserSerializer(serializers.ModelSerialize
 
 class AddUserBankAccountDetailsSerializer(serializers.ModelSerializer):
     user = RefferalLinkSerializer(read_only = True)
-    link_id = serializers.PrimaryKeyRelatedField(write_only=True, queryset=RefferalLink.objects.all(), source='user')
+    link_id = serializers.PrimaryKeyRelatedField(write_only=True, queryset=UserData.objects.all(), source='user')
     check_or_passbook_photo = serializers.ImageField(required = False)
     pancard_photo = serializers.ImageField(required = False)
     check_or_passbook_photo_url = serializers.SerializerMethodField()
@@ -54,21 +54,21 @@ class AddUserBankAccountDetailsSerializer(serializers.ModelSerializer):
     def get_check_or_passbook_photo_url(self, obj):
         request = self.context.get('request')
         if not request:
-            return static('main_pro_changing/adv.jpg') 
-        if obj.profile_image and hasattr(obj.profile_image, 'url'):
-            return request.build_absolute_uri(obj.profile_image.url)
+            return static('migrate/adv.jpg') 
+        if obj.check_or_passbook_photo and hasattr(obj.check_or_passbook_photo, 'url'):
+            return request.build_absolute_uri(obj.check_or_passbook_photo.url)
         else:
-            default_img_url = static('main_pro_changing/adv.jpg')
+            default_img_url = static('migrate/adv.jpg')
             return request.build_absolute_uri(default_img_url)
 
     def get_pancard_photo_url(self, obj):
         request = self.context.get('request')
         if not request:
-            return static('main_pro_changing/adv.jpg') 
-        if obj.profile_image and hasattr(obj.profile_image, 'url'):
-            return request.build_absolute_uri(obj.profile_image.url)
+            return static('affliate/adv.jpg') 
+        if obj.pancard_photo and hasattr(obj.pancard_photo, 'url'):
+            return request.build_absolute_uri(obj.pancard_photo.url)
         else:
-            default_img_url = static('main_pro_changing/adv.jpg')
+            default_img_url = static('affiliate/adv.jpg')
             return request.build_absolute_uri(default_img_url)
 
 

@@ -435,6 +435,7 @@ class TransactionCountOfParticularProduct(APIView):
 class UserSIngleProductTranction(APIView):
     def get(self, request, product_id):
         try:
+            print('pppppppppppppp')
             user = request.user
             user_data = UserData.objects.get(id = user.id)
             product = Product.objects.get(id = product_id)
@@ -442,12 +443,12 @@ class UserSIngleProductTranction(APIView):
             clicks = clicks_obj.clicks
             transactions = UserCommissions.objects.filter(user__user=user_data, product=product)
             transaction_count = transactions.count()
-
             total_commission = transactions.aggregate(Sum('commission_amount'))['commission_amount__sum'] or 0
             total_gross_sale = transactions.aggregate(Sum('product__subcription_fee'))['product__subcription_fee__sum'] or 0
             converstion_rate = transaction_count/clicks
             e_p_c = total_commission/clicks
             avg_order_value = total_gross_sale/transaction_count
+            print('eeeeeeeeeeeee')
             return Response({'transaction_count' : transaction_count,
                               'total_gross_sale' : total_gross_sale, 
                               'total_commission' : total_commission, 
@@ -457,11 +458,11 @@ class UserSIngleProductTranction(APIView):
                               'avg_order_value': avg_order_value},
                                 status=status.HTTP_200_OK)
         except RefferalLink.DoesNotExist:
-            return Response({'message' : 'Something whent wrong'}, status = status.HTTP_400_BAD_REQUEST)
+            return Response({'message' : '1 whent wrong'}, status = status.HTTP_400_BAD_REQUEST)
         except Product.DoesNotExist:
-            return Response({'message' : 'Something whent wrong'}, status = status.HTTP_400_BAD_REQUEST)
+            return Response({'message' : '2Something whent wrong'}, status = status.HTTP_400_BAD_REQUEST)
         except UserData.DoesNotExist:
-            return Response({'message' : 'Something whent wrong'}, status = status.HTTP_400_BAD_REQUEST)
+            return Response({'message' : '3Something whent wrong'}, status = status.HTTP_400_BAD_REQUEST)
 
 
 #To show the details in admin overview
@@ -480,8 +481,8 @@ class AdminOverView(APIView):
             clicks = product.aggregate(Sum('clicks'))['clicks__sum'] or 0
             total_commission = transactions.aggregate(Sum('commission_amount'))['commission_amount__sum'] or 0
             total_gross_sale = transactions.aggregate(Sum('product__subcription_fee'))['product__subcription_fee__sum'] or 0
-            converstion_rate = transaction_count/clicks
-            e_p_c = total_commission/clicks
+            converstion_rate = round(transaction_count/clicks,2)
+            e_p_c = round(total_commission/clicks, 2)
             avg_order_value = total_gross_sale/transaction_count
             return Response({'transaction_count' : transaction_count,
                               'total_gross_sale' : total_gross_sale, 
@@ -497,6 +498,51 @@ class AdminOverView(APIView):
             return Response({'message' : 'Something whent wrong'}, status = status.HTTP_400_BAD_REQUEST)
         except UserData.DoesNotExist:
             return Response({'message' : 'Something whent wrong'}, status = status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+#To get all the particular product Analytics in admin dashboard
+class GetParticularProductAnalyticsInadmin(APIView):
+    def get(self, request, product_id):
+        try:
+            print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;')
+            # user = request.user
+            # user_data = UserData.objects.get(id = user.id)
+            # product = Product.objects.get(id = product_id)
+            # clicks_obj = RefferalLink.objects.get(product = product ,user = user_data )
+            # clicks = clicks_obj.clicks
+            product = Product.objects.get(id = product_id)
+
+            transactions = UserCommissions.objects.filter(product = product)
+            transaction_count = transactions.count()
+            clicks = RefferalLink.objects.filter(product=product).aggregate(Sum('clicks'))['clicks__sum'] or 0
+            total_commission = transactions.aggregate(Sum('commission_amount'))['commission_amount__sum'] or 0
+            total_gross_sale = transactions.aggregate(Sum('product__subcription_fee'))['product__subcription_fee__sum'] or 0
+            converstion_rate = round(transaction_count/clicks,2)
+            e_p_c = round(total_commission / clicks, 2)
+            avg_order_value = total_gross_sale/transaction_count
+            return Response({'transaction_count' : transaction_count,
+                              'total_gross_sale' : total_gross_sale, 
+                              'total_commission' : total_commission, 
+                              'clicks' : clicks,
+                              'e_p_c' : e_p_c,
+                              'converstion_rate' : converstion_rate,
+                              'avg_order_value': avg_order_value},
+                                status=status.HTTP_200_OK)
+        except RefferalLink.DoesNotExist:
+            return Response({'message' : 'Something whent wrong'}, status = status.HTTP_400_BAD_REQUEST)
+        except Product.DoesNotExist:
+            return Response({'message' : 'Something whent wrong'}, status = status.HTTP_400_BAD_REQUEST)
+        except UserData.DoesNotExist:
+            return Response({'message' : 'Something whent wrong'}, status = status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
 
 
 # #Total clicks of the a product for a user link
